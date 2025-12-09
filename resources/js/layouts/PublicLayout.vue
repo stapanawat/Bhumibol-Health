@@ -1,15 +1,36 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { LogOut, LayoutDashboard, User as UserIcon, Settings } from 'lucide-vue-next';
+import { route } from 'ziggy-js';
 
 const isMobileMenuOpen = ref(false);
+const page = usePage();
+const user = computed(() => page.props.auth.user);
 
 const toggleMobileMenu = () => {
     isMobileMenuOpen.value = !isMobileMenuOpen.value;
 };
 
-// TODO: Pull menu structure from props/DB later
+const getInitials = (name: string) => {
+    return name
+        .split(' ')
+        .map((word) => word[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+};
 </script>
+
 
 <template>
     <div class="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900">
@@ -19,8 +40,8 @@ const toggleMobileMenu = () => {
                 <div class="flex justify-between h-20 items-center">
                     <!-- Logo Section -->
                     <Link href="/" class="flex items-center gap-3 group">
-                         <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-all">
-                            BH
+                         <div class="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-all">
+                            <img src="/images/logo.png" alt="Bhumibol Health Logo" class="w-full h-full object-cover">
                          </div>
                          <div class="flex flex-col">
                              <span class="font-bold text-xl leading-none bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-indigo-900">
@@ -39,12 +60,54 @@ const toggleMobileMenu = () => {
                         
                         <div class="h-6 w-px bg-slate-200 mx-2"></div>
 
-                        <Link href="/login" class="px-5 py-2.5 rounded-full bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 transition-all">
-                            Log In
-                        </Link>
-                        <Link href="/register" class="px-5 py-2.5 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 transition-all">
-                            Register
-                        </Link>
+                        <template v-if="user">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger class="outline-none">
+                                    <div class="flex items-center gap-3 py-1 pl-1 pr-3 rounded-full border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer">
+                                        <Avatar class="h-8 w-8">
+                                            <AvatarImage :src="user.avatar" :alt="user.name" />
+                                            <AvatarFallback>{{ getInitials(user.name) }}</AvatarFallback>
+                                        </Avatar>
+                                        <span class="text-sm font-medium text-slate-700 max-w-[100px] truncate">{{ user.name }}</span>
+                                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                    </div>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" class="w-56">
+                                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    
+                                    <DropdownMenuItem v-if="user.roles && (user.roles.some(r => r.name === 'admin' || r.name === 'pr') || user.is_super_admin)" as-child>
+                                        <Link :href="route('dashboard')" class="w-full cursor-pointer flex items-center">
+                                            <LayoutDashboard class="mr-2 h-4 w-4" />
+                                            <span>Dashboard</span>
+                                        </Link>
+                                    </DropdownMenuItem>
+
+                                    <DropdownMenuItem as-child>
+                                        <Link :href="route('profile.edit')" class="w-full cursor-pointer flex items-center">
+                                            <UserIcon class="mr-2 h-4 w-4" />
+                                            <span>Profile</span>
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem as-child>
+                                        <Link :href="route('logout')" method="post" as="button" class="w-full cursor-pointer flex items-center text-red-600 focus:text-red-600">
+                                            <LogOut class="mr-2 h-4 w-4" />
+                                            <span>Log out</span>
+                                        </Link>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </template>
+                        <template v-else>
+                            <Link :href="route('login')" class="px-5 py-2.5 rounded-full bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 transition-all">
+                                Log In
+                            </Link>
+                            <Link :href="route('register')" class="px-5 py-2.5 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 transition-all">
+                                Register
+                            </Link>
+                        </template>
                     </div>
 
                     <!-- Mobile Toggle -->
@@ -64,9 +127,34 @@ const toggleMobileMenu = () => {
                     <Link href="/news" class="block px-3 py-3 rounded-lg text-base font-medium text-slate-600 hover:text-blue-600 hover:bg-slate-50">News</Link>
                     <Link href="/services" class="block px-3 py-3 rounded-lg text-base font-medium text-slate-600 hover:text-blue-600 hover:bg-slate-50">Services</Link>
                     <div class="border-t border-slate-100 my-2"></div>
-                    <div class="grid grid-cols-2 gap-4 mt-4">
-                        <Link href="/login" class="text-center px-4 py-2 rounded-lg bg-slate-100 text-slate-700 font-semibold">Log In</Link>
-                        <Link href="/register" class="text-center px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold">Register</Link>
+                    <div class="grid gap-4 mt-4" v-if="user">
+                        <div class="flex items-center gap-3 px-3">
+                            <Avatar class="h-10 w-10">
+                                <AvatarImage :src="user.avatar" :alt="user.name" />
+                                <AvatarFallback>{{ getInitials(user.name) }}</AvatarFallback>
+                            </Avatar>
+                            <div class="flex flex-col">
+                                <span class="font-medium text-slate-900">{{ user.name }}</span>
+                                <span class="text-xs text-slate-500">{{ user.email }}</span>
+                            </div>
+                        </div>
+                        <div class="border-t border-slate-100 my-1"></div>
+                        <Link v-if="user.roles && (user.roles.some(r => r.name === 'admin' || r.name === 'pr') || user.is_super_admin)" :href="route('dashboard')" class="flex items-center px-4 py-2 text-slate-600 hover:text-blue-600 hover:bg-slate-50 rounded-lg">
+                            <LayoutDashboard class="mr-2 h-4 w-4" />
+                            Dashboard
+                        </Link>
+                        <Link :href="route('profile.edit')" class="flex items-center px-4 py-2 text-slate-600 hover:text-blue-600 hover:bg-slate-50 rounded-lg">
+                             <UserIcon class="mr-2 h-4 w-4" />
+                             Profile
+                        </Link>
+                        <Link :href="route('logout')" method="post" as="button" class="flex items-center w-full px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg">
+                            <LogOut class="mr-2 h-4 w-4" />
+                            Log out
+                        </Link>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mt-4" v-else>
+                        <Link :href="route('login')" class="text-center px-4 py-2 rounded-lg bg-slate-100 text-slate-700 font-semibold">Log In</Link>
+                        <Link :href="route('register')" class="text-center px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold">Register</Link>
                     </div>
                 </div>
             </div>
@@ -87,7 +175,9 @@ const toggleMobileMenu = () => {
                     <!-- Brand -->
                     <div class="space-y-4">
                         <div class="flex items-center gap-2 text-white">
-                            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold">BH</div>
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden bg-white/10">
+                                <img src="/images/logo.png" alt="Bhumibol Health Logo" class="w-full h-full object-cover">
+                            </div>
                             <span class="font-bold text-xl">Bhumibol Health</span>
                         </div>
                         <p class="text-slate-400 text-sm leading-relaxed">

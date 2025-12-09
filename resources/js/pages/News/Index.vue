@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import PublicLayout from '@/layouts/PublicLayout.vue';
+import { route } from 'ziggy-js';
 import { ref, watch } from 'vue';
 import { debounce } from 'lodash';
 

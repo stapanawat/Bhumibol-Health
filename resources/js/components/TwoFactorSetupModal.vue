@@ -13,11 +13,10 @@ import {
 import {
     PinInput,
     PinInputGroup,
-    PinInputSlot,
 } from '@/components/ui/pin-input';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
-import { confirm } from '@/routes/two-factor';
-import { Form } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import { useClipboard } from '@vueuse/core';
 import { Check, Copy, ScanLine } from 'lucide-vue-next';
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
@@ -37,6 +36,22 @@ const { qrCodeSvg, manualSetupKey, clearSetupData, fetchSetupData, errors } =
 const showVerificationStep = ref(false);
 const code = ref<number[]>([]);
 const codeValue = computed<string>(() => code.value.join(''));
+
+const form = useForm({
+    code: '',
+});
+
+const submit = () => {
+    form.code = codeValue.value;
+    form.post(route('two-factor.confirm'), {
+        onFinish: () => {
+            code.value = [];
+        },
+        onSuccess: () => {
+             isOpen.value = false;
+        }
+    });
+};
 
 const pinInputContainerRef = useTemplateRef('pinInputContainerRef');
 
@@ -231,13 +246,8 @@ watch(
                 </template>
 
                 <template v-else>
-                    <Form
-                        v-bind="confirm.form()"
-                        reset-on-error
-                        @finish="code = []"
-                        @success="isOpen = false"
-                        v-slot="{ errors, processing }"
-                    >
+
+                    <form @submit.prevent="submit">
                         <input type="hidden" name="code" :value="codeValue" />
                         <div
                             ref="pinInputContainerRef"
@@ -259,16 +269,17 @@ watch(
                                             v-for="(id, index) in 6"
                                             :key="id"
                                             :index="index"
-                                            :disabled="processing"
+                                            :disabled="form.processing"
                                         />
                                     </PinInputGroup>
                                 </PinInput>
                                 <InputError
                                     :message="
-                                        errors?.confirmTwoFactorAuthentication
-                                            ?.code
+                                        (form.errors as any)['confirmTwoFactorAuthentication.code']
+
                                     "
                                 />
+                                <InputError :message="form.errors.code" />
                             </div>
 
                             <div class="flex w-full items-center space-x-5">
@@ -277,7 +288,7 @@ watch(
                                     variant="outline"
                                     class="w-auto flex-1"
                                     @click="showVerificationStep = false"
-                                    :disabled="processing"
+                                    :disabled="form.processing"
                                 >
                                     Back
                                 </Button>
@@ -285,15 +296,16 @@ watch(
                                     type="submit"
                                     class="w-auto flex-1"
                                     :disabled="
-                                        processing || codeValue.length < 6
+                                        form.processing || codeValue.length < 6
                                     "
                                 >
                                     Confirm
                                 </Button>
                             </div>
                         </div>
-                    </Form>
+                    </form>
                 </template>
+
             </div>
         </DialogContent>
     </Dialog>
