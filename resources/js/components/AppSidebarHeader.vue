@@ -23,5 +23,8 @@ withDefaults(
                 <Breadcrumbs :breadcrumbs="breadcrumbs" />
             </template>
         </div>
+        <div class="ml-auto">
+            <slot />
+        </div>
     </header>
 </template>

@@ -3,9 +3,31 @@ import { Head, Link } from '@inertiajs/vue3';
 import PublicLayout from '@/layouts/PublicLayout.vue';
 
 defineProps<{
-    canLogin?: boolean;
-    canRegister?: boolean;
+    heroPost?: {
+        title_th: string;
+        excerpt_th: string;
+        image: string;
+        slug: string;
+        category: { name_th: string };
+    } | null;
+    latestNews: Array<{
+        id: number;
+        title_th: string;
+        excerpt_th: string;
+        image: string;
+        slug: string;
+        created_at: string;
+        category: { name_th: string };
+    }>;
 }>();
+
+const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('th-TH', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+};
 </script>
 
 <template>
@@ -25,15 +47,32 @@ defineProps<{
                             <p class="mt-3 text-base text-slate-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
                                 Bhumibol Adulyadej Hospital provides premium healthcare services with advanced technology and expert medical specialists.
                             </p>
-                            <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
+                            
+                            <!-- Hero News (Pinned) -->
+                            <div v-if="heroPost" class="mt-8 p-6 bg-blue-50 rounded-2xl border border-blue-100 shadow-sm relative overflow-hidden group">
+                                <div class="absolute top-0 right-0 p-2 opacity-10">
+                                    <svg class="w-24 h-24 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mb-2">
+                                    {{ heroPost.category?.name_th }}
+                                </span>
+                                <h3 class="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                                    <Link :href="route('news.show', heroPost.slug)">{{ heroPost.title_th }}</Link>
+                                </h3>
+                                <p class="mt-2 text-slate-600 text-sm line-clamp-2">
+                                    {{ heroPost.excerpt_th }}
+                                </p>
+                                <div class="mt-4">
+                                     <Link :href="route('news.show', heroPost.slug)" class="text-blue-600 font-semibold hover:text-blue-800 text-sm flex items-center">
+                                        Read More <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                                     </Link>
+                                </div>
+                            </div>
+                            
+                            <div v-else class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
                                 <div class="rounded-md shadow">
                                     <Link href="/news" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10">
                                         Read News
-                                    </Link>
-                                </div>
-                                <div class="mt-3 sm:mt-0 sm:ml-3">
-                                    <Link href="/services" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 md:py-4 md:text-lg md:px-10">
-                                        Our Services
                                     </Link>
                                 </div>
                             </div>
@@ -41,53 +80,65 @@ defineProps<{
                     </main>
                 </div>
             </div>
-            <!-- Hero Image Place holder (Use a nice gradient or real image later) -->
-            <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-blue-50 flex items-center justify-center">
-                 <div class="text-blue-200 font-bold text-9xl select-none opacity-20">HEALTH</div>
+            
+            <!-- Hero Image -->
+            <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-blue-50">
+                 <img v-if="heroPost?.image" :src="`/storage/${heroPost.image}`" class="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full opacity-90" alt="Hero Image">
+                 <div v-else class="flex items-center justify-center w-full h-full text-blue-200 font-bold text-9xl select-none opacity-20">HEALTH</div>
             </div>
         </div>
 
-        <!-- Features Grid -->
-        <div class="py-12 bg-slate-50">
+        <!-- Latest News Grid -->
+        <div class="py-16 bg-slate-50" v-if="latestNews.length > 0">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="lg:text-center">
-                    <h2 class="text-base text-blue-600 font-semibold tracking-wide uppercase">Outstanding Services</h2>
-                    <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-                        Comprehensive Medical Care
-                    </p>
+                <div class="flex justify-between items-end mb-8">
+                     <div>
+                        <h2 class="text-blue-600 font-semibold tracking-wide uppercase">Update</h2>
+                        <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+                            Latest News
+                        </p>
+                     </div>
+                     <Link href="/news" class="hidden sm:flex text-slate-500 hover:text-blue-600 font-medium items-center transition-colors">
+                        View All News <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                     </Link>
                 </div>
 
-                <div class="mt-10">
-                    <dl class="space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
-                        <div class="relative">
-                            <dt>
-                                <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
-                                    <!-- Heroicon name: outline/globe-alt -->
-                                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                                    </svg>
-                                </div>
-                                <p class="ml-16 text-lg leading-6 font-medium text-slate-900">Online Appointments</p>
-                            </dt>
-                            <dd class="mt-2 ml-16 text-base text-slate-500">
-                                Schedule your visit easily through our patient portal without waiting in line.
-                            </dd>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <article v-for="news in latestNews" :key="news.id" class="flex flex-col bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden group">
+                        <div class="h-48 w-full bg-slate-200 relative overflow-hidden">
+                            <img v-if="news.image" :src="`/storage/${news.image}`" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" :alt="news.title_th">
+                            <div v-else class="w-full h-full flex items-center justify-center text-slate-300">
+                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            </div>
+                            <div class="absolute top-4 left-4">
+                                <span class="bg-white/90 backdrop-blur text-blue-800 text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                                    {{ news.category?.name_th }}
+                                </span>
+                            </div>
                         </div>
-
-                        <div class="relative">
-                            <dt>
-                                <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
-                                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                                    </svg>
-                                </div>
-                                <p class="ml-16 text-lg leading-6 font-medium text-slate-900">Latest News & Feeds</p>
-                            </dt>
-                            <dd class="mt-2 ml-16 text-base text-slate-500">
-                                Stay updated with the latest health news, announcements, and medical articles.
-                            </dd>
+                        <div class="flex-1 p-6 flex flex-col justify-between">
+                            <div>
+                                <div class="text-sm text-slate-500 mb-2">{{ formatDate(news.created_at) }}</div>
+                                <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
+                                    <Link :href="route('news.show', news.slug)">{{ news.title_th }}</Link>
+                                </h3>
+                                <p class="text-slate-600 text-sm line-clamp-3">
+                                    {{ news.excerpt_th }}
+                                </p>
+                            </div>
+                            <div class="mt-6 pt-6 border-t border-slate-100">
+                                <Link :href="route('news.show', news.slug)" class="text-blue-600 font-semibold text-sm hover:underline">
+                                    Read Full Story &rarr;
+                                </Link>
+                            </div>
                         </div>
-                    </dl>
+                    </article>
+                </div>
+                
+                <div class="mt-8 text-center sm:hidden">
+                    <Link href="/news" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                        View All News
+                    </Link>
                 </div>
             </div>
         </div>
