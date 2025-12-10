@@ -4,7 +4,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
-defineProps<{
+const props = defineProps<{
     categories: Array<{ id: number; name_th: string }>;
 }>();
 
@@ -16,9 +16,10 @@ const form = useForm({
     content_en: '',
     excerpt_th: '',
     excerpt_en: '',
+    image: null as File | null,
     status: 'draft',
     is_pinned: false,
-    image: null as File | null,
+    is_breaking: false,
 });
 
 const imagePreview = ref<string | null>(null);
@@ -131,10 +132,16 @@ const submit = () => {
                                 </div>
                             </div>
                             
-                             <div class="col-span-2 md:col-span-1 pt-4">
+                            <div class="col-span-2 md:col-span-1 pt-4">
                                 <label class="flex items-center space-x-3">
                                     <input v-model="form.is_pinned" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                                     <span class="text-gray-900 font-medium">Pin to Highlight (ปักหมุดข่าวสำคัญ)</span>
+                                </label>
+                            </div>
+                            <div class="col-span-2 md:col-span-1 pt-4">
+                                <label class="flex items-center space-x-3">
+                                    <input v-model="form.is_breaking" type="checkbox" class="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
+                                    <span class="text-red-700 font-medium">Breaking News (เหตุการณ์ด่วน/ภัยพิบัติ)</span>
                                 </label>
                             </div>
 

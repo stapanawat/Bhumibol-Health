@@ -4,6 +4,7 @@ import PublicLayout from '@/layouts/PublicLayout.vue';
 import { route } from 'ziggy-js';
 import { ref, watch } from 'vue';
 import { debounce } from 'lodash';
+import { Eye, Heart, Share2 } from 'lucide-vue-next';
 
 const props = defineProps<{
     posts: {
@@ -106,9 +107,22 @@ const formatDate = (date: string) => {
                                  <p class="text-slate-500 text-sm line-clamp-3 mb-4 flex-1">
                                      {{ news.excerpt_th }}
                                  </p>
-                                 <div class="flex items-center justify-between mt-auto">
-                                     <span class="text-xs text-slate-400">{{ formatDate(news.created_at) }}</span>
-                                     <Link :href="route('news.show', news.slug)" class="text-blue-600 font-semibold text-sm hover:underline">Read More</Link>
+                                 <div class="flex items-center justify-between mt-auto pt-4 border-t border-slate-50">
+                                     <div class="flex items-center space-x-4 text-xs text-slate-400">
+                                         <span class="flex items-center">
+                                             <Eye class="w-3.5 h-3.5 mr-1" />
+                                             {{ news.views }}
+                                         </span>
+                                         <span class="flex items-center">
+                                             <Heart class="w-3.5 h-3.5 mr-1" />
+                                             0
+                                         </span>
+                                         <span class="flex items-center">
+                                             <Share2 class="w-3.5 h-3.5 mr-1" />
+                                             0
+                                         </span>
+                                     </div>
+                                     <Link :href="route('news.show', news.slug)" class="text-blue-600 font-semibold text-xs hover:underline">Read More</Link>
                                  </div>
                              </div>
                          </article>

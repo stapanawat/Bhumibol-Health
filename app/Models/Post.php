@@ -22,13 +22,15 @@ class Post extends Model
         'image',
         'status',
         'published_at',
-        'views_count',
+        'views',
         'is_pinned',
+        'is_breaking',
     ];
 
     protected $casts = [
         'published_at' => 'datetime',
         'is_pinned' => 'boolean',
+        'is_breaking' => 'boolean',
     ];
 
     public function category()

@@ -53,6 +53,14 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
             ],
             'sidebarOpen' => !$request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'breakingNews' => \App\Models\Post::where('status', 'published')
+                ->where('is_breaking', true)
+                ->latest('published_at')
+                ->select('title_th', 'slug')
+                ->first(),
+            'activeUsers' => \Illuminate\Support\Facades\DB::table('active_users')
+                ->where('last_activity', '>=', now()->subMinutes(5))
+                ->count(),
         ];
     }
 }

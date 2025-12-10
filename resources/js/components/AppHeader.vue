@@ -34,7 +34,7 @@ import { getInitials } from '@/composables/useInitials';
 import { toUrl, urlIsActive } from '@/lib/utils';
 import type { BreadcrumbItem, NavItem } from '@/types';
 import { InertiaLinkProps, Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, Menu, Search, Users } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 interface Props {
@@ -65,6 +65,11 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: route('dashboard'),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Our Doctors',
+        href: route('doctors.index'),
+        icon: Users,
     },
 ];
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Post;
+use App\Models\Doctor;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 
@@ -28,9 +29,12 @@ class NewsController extends Controller
             ->take(6)
             ->get();
 
+        $doctors = Doctor::orderBy('order')->take(4)->get();
+
         return Inertia::render('Welcome', [
             'heroPost' => $heroPost,
-            'latestNews' => $latestNews
+            'latestNews' => $latestNews,
+            'doctors' => $doctors
         ]);
     }
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
+import { Eye, Heart, Share2 } from 'lucide-vue-next';
 import PublicLayout from '@/layouts/PublicLayout.vue';
 import { route } from 'ziggy-js';
 
@@ -19,6 +20,12 @@ defineProps<{
         slug: string;
         created_at: string;
         category: { name_th: string };
+    }>;
+    doctors: Array<{
+        id: number;
+        name_th: string;
+        specialty_th: string;
+        image: string;
     }>;
 }>();
 
@@ -89,6 +96,40 @@ const formatDate = (date: string) => {
             </div>
         </div>
 
+        <!-- Our Specialists Section -->
+        <div class="py-16 bg-white overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="text-base font-semibold text-blue-600 tracking-wide uppercase">Expert Care</h2>
+                    <p class="mt-1 text-3xl font-extrabold text-slate-900 sm:text-4xl sm:tracking-tight lg:text-5xl">
+                        Our Specialists
+                    </p>
+                    <p class="max-w-xl mt-5 mx-auto text-xl text-slate-500">
+                        Meet our team of dedicated medical professionals committed to providing the best healthcare services.
+                    </p>
+                </div>
+
+                <div class="mt-12 grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                    <div v-for="doctor in doctors" :key="doctor.id" class="group text-center">
+                        <div class="relative w-40 h-40 mx-auto rounded-full overflow-hidden bg-slate-100 ring-4 ring-blue-50 group-hover:ring-blue-100 transition-all mb-6">
+                             <img v-if="doctor.image" :src="`/storage/${doctor.image}`" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" :alt="doctor.name_th">
+                             <div v-else class="w-full h-full flex items-center justify-center text-slate-300">
+                                <svg class="w-20 h-20" fill="currentColor" viewBox="0 0 24 24"><path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                             </div>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{{ doctor.name_th }}</h3>
+                        <p class="text-blue-600 text-sm font-medium mt-1">{{ doctor.specialty_th }}</p>
+                    </div>
+                </div>
+
+                 <div class="mt-10 text-center">
+                    <Link :href="route('doctors.index')" class="inline-flex items-center text-blue-600 font-semibold hover:text-blue-800 transition-colors">
+                        View All Doctors <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                    </Link>
+                </div>
+            </div>
+        </div>
+
         <!-- Latest News Grid -->
         <div class="py-16 bg-slate-50" v-if="latestNews.length > 0">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -127,7 +168,21 @@ const formatDate = (date: string) => {
                                     {{ news.excerpt_th }}
                                 </p>
                             </div>
-                            <div class="mt-6 pt-6 border-t border-slate-100">
+                            <div class="mt-6 pt-6 border-t border-slate-100 flex items-center justify-between">
+                                <div class="flex items-center space-x-4 text-xs text-slate-400">
+                                     <span class="flex items-center">
+                                         <Eye class="w-3.5 h-3.5 mr-1" />
+                                         {{ (news as any).views }}
+                                     </span>
+                                     <span class="flex items-center">
+                                         <Heart class="w-3.5 h-3.5 mr-1" />
+                                         0
+                                     </span>
+                                     <span class="flex items-center">
+                                         <Share2 class="w-3.5 h-3.5 mr-1" />
+                                         0
+                                     </span>
+                                </div>
                                 <Link :href="route('news.show', news.slug)" class="text-blue-600 font-semibold text-sm hover:underline">
                                     Read Full Story &rarr;
                                 </Link>

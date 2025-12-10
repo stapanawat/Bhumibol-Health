@@ -2,6 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import PublicLayout from '@/layouts/PublicLayout.vue';
 import { route } from 'ziggy-js';
+import { Eye, Heart, Share2, MessageCircle, Twitter } from 'lucide-vue-next';
 
 defineProps<{
     post: any;
@@ -34,10 +35,31 @@ const formatDate = (date: string) => {
                      <h1 class="text-3xl md:text-5xl font-extrabold text-white leading-tight mb-4 shadow-sm">
                          {{ post.title_th }}
                      </h1>
-                     <div class="flex items-center text-blue-100 text-sm">
-                         <span class="mr-4">{{ formatDate(post.created_at) }}</span>
-                         <span class="w-1 h-1 bg-blue-400 rounded-full mr-4"></span>
-                         <span>Views: {{ post.views }}</span>
+                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                         <div class="flex items-center text-blue-100 text-sm">
+                             <span class="mr-4">{{ formatDate(post.created_at) }}</span>
+                             <span class="w-1 h-1 bg-blue-400 rounded-full mr-4"></span>
+                             <span class="flex items-center">
+                                 <Eye class="w-4 h-4 mr-1" />
+                                 {{ post.views }}
+                             </span>
+                         </div>
+
+                         <!-- Interaction Buttons -->
+                         <div class="flex items-center gap-3">
+                             <button class="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-200 text-white group" title="Like">
+                                 <Heart class="w-5 h-5 group-hover:text-red-400 group-hover:fill-red-400 transition-colors" />
+                             </button>
+                             <button class="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-200 text-white group" title="Comment">
+                                 <MessageCircle class="w-5 h-5 group-hover:text-blue-400 transition-colors" />
+                             </button>
+                             <button class="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-200 text-white group" title="Share">
+                                 <Share2 class="w-5 h-5 group-hover:text-green-400 transition-colors" />
+                             </button>
+                             <a :href="`https://twitter.com/intent/tweet?text=${post.title_th}&url=${route('news.show', post.slug)}`" target="_blank" class="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-200 text-white group" title="Tweet">
+                                 <Twitter class="w-5 h-5 group-hover:text-sky-400 transition-colors" />
+                             </a>
+                         </div>
                      </div>
                  </div>
              </div>
