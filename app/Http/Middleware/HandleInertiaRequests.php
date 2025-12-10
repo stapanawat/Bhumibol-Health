@@ -58,6 +58,28 @@ class HandleInertiaRequests extends Middleware
                 ->latest('published_at')
                 ->select('title_th', 'slug')
                 ->first(),
+            'activeTheme' => \App\Models\Theme::where('status', true)
+                ->where(function ($q) {
+                    $q->whereNull('start_date')
+                        ->orWhere('start_date', '<=', now());
+                })
+                ->where(function ($q) {
+                    $q->whereNull('end_date')
+                        ->orWhere('end_date', '>=', now());
+                })
+                ->latest('start_date')
+                ->first(),
+            'introPage' => \App\Models\IntroPage::where('status', true)
+                ->where(function ($q) {
+                    $q->whereNull('start_date')
+                        ->orWhere('start_date', '<=', now());
+                })
+                ->where(function ($q) {
+                    $q->whereNull('end_date')
+                        ->orWhere('end_date', '>=', now());
+                })
+                ->latest('start_date')
+                ->first(),
             'activeUsers' => \Illuminate\Support\Facades\DB::table('active_users')
                 ->where('last_activity', '>=', now()->subMinutes(5))
                 ->count(),

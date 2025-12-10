@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, FileText, Tags, Settings, UserRound } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, FileText, Tags, Settings, UserRound, Palette, MonitorPlay, MessageSquare, Map } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -37,6 +37,26 @@ const mainNavItems: NavItem[] = [
         title: 'Doctors',
         href: route('admin.doctors.index'),
         icon: UserRound,
+    },
+    {
+        title: 'Themes',
+        href: route('admin.themes.index'),
+        icon: Palette,
+    },
+    {
+        title: 'Intro Pages',
+        href: route('admin.intro-pages.index'),
+        icon: MonitorPlay,
+    },
+    {
+        title: 'Popups',
+        href: route('admin.popups.index'),
+        icon: MessageSquare,
+    },
+    {
+        title: 'Sitemap',
+        href: route('admin.sitemaps.index'),
+        icon: Map,
     },
 ];
 

@@ -19,13 +19,48 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LogOut, LayoutDashboard, User as UserIcon, Menu as MenuIcon, Users } from 'lucide-vue-next';
 import { route } from 'ziggy-js';
 import GlobalSearch from '@/components/GlobalSearch.vue';
+import IntroOverlay from '@/components/IntroOverlay.vue';
+import PopupModal from '@/components/PopupModal.vue';
 
 const isMobileMenuOpen = ref(false);
 const page = usePage();
 const user = computed(() => page.props.auth.user);
 const breakingNews = computed(() => page.props.breakingNews as { title_th: string; slug: string } | null);
 const activeUsers = computed(() => page.props.activeUsers as number || 0);
+const activeTheme = computed(() => page.props.activeTheme as any | null);
+const introPage = computed(() => page.props.introPage as any | null);
+const activePopup = computed(() => page.props.activePopup as any | null);
 
+const themeStyles = computed(() => {
+    if (!activeTheme.value) return {};
+    
+    const colors = activeTheme.value.colors || {};
+    return {
+        '--primary': colors.primary,
+        '--secondary': colors.secondary,
+        '--accent': colors.accent || colors.secondary, // Fallback if not set
+        '--muted': colors.muted || '#f1f5f9', // Default slate-100
+        '--background': colors.background, 
+        '--foreground': colors.text,
+        'font-family': activeTheme.value.font_family ? `${activeTheme.value.font_family}, sans-serif` : undefined,
+    };
+});
+
+const themeBackground = computed(() => {
+    if (activeTheme.value?.background_image) {
+        return {
+            backgroundImage: `url('${activeTheme.value.background_image}')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+        };
+    }
+    // Fallback to color if set in theme, else default
+    if (activeTheme.value?.colors?.background) {
+        return { backgroundColor: activeTheme.value.colors.background };
+    }
+    return {};
+});
 const toggleMobileMenu = () => {
     isMobileMenuOpen.value = !isMobileMenuOpen.value;
 };
@@ -56,7 +91,18 @@ const menuItems = [
 </script>
 
 <template>
-    <div class="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900 flex flex-col">
+    <div 
+        class="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-primary/20 selection:text-primary flex flex-col transition-colors duration-500"
+        :style="{ ...themeStyles, ...themeBackground }"
+    >
+        <!-- Custom CSS Injection -->
+        <component :is="'style'" v-if="activeTheme?.css_overrides">
+            {{ activeTheme.css_overrides }}
+        </component>
+
+        <IntroOverlay :intro="introPage" />
+        <PopupModal :popup="activePopup" />
+
         <!-- Breaking News Banner -->
         <div v-if="breakingNews" class="bg-red-600 text-white px-4 py-2 relative overflow-hidden flex-shrink-0">
             <div class="container mx-auto flex items-center justify-between relative z-10">
@@ -78,11 +124,11 @@ const menuItems = [
                 <div class="flex justify-between h-20 items-center gap-4">
                     <!-- Logo Section -->
                     <Link href="/" class="flex items-center gap-3 group flex-shrink-0">
-                         <div class="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-all">
+                         <div class="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden shadow-lg shadow-primary/30 group-hover:shadow-primary/50 transition-all">
                             <img src="/images/logo.png" alt="Bhumibol Health Logo" class="w-full h-full object-cover">
                          </div>
                          <div class="flex flex-col">
-                             <span class="font-bold text-xl leading-none bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-indigo-900">
+                             <span class="font-bold text-xl leading-none bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">
                                 Bhumibol Health
                              </span>
                              <span class="text-xs text-slate-500 font-medium tracking-wide">Premium Healthcare</span>
@@ -143,7 +189,7 @@ const menuItems = [
                                 <Link :href="route('login')" class="px-4 py-2 rounded-full text-sm font-semibold text-slate-700 hover:bg-slate-100 transition-all">
                                     Log In
                                 </Link>
-                                <Link :href="route('register')" class="px-4 py-2 rounded-full text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg transition-all">
+                                <Link :href="route('register')" class="px-4 py-2 rounded-full text-sm font-semibold bg-primary text-white hover:bg-primary/90 shadow-md hover:shadow-lg transition-all">
                                     Register
                                 </Link>
                             </div>
@@ -159,7 +205,7 @@ const menuItems = [
                             <SheetContent side="top" class="w-full h-auto max-h-[85vh] p-0 flex flex-col rounded-b-2xl shadow-xl">
                                 <div class="p-6 border-b border-slate-100 flex items-center justify-between">
                                     <Link href="/" class="flex items-center gap-3">
-                                         <div class="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-blue-600">
+                                         <div class="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-primary">
                                             <img src="/images/logo.png" alt="Logo" class="w-full h-full object-cover">
                                          </div>
                                          <div class="flex flex-col">
@@ -180,7 +226,7 @@ const menuItems = [
                                             v-for="(item, index) in menuItems" 
                                             :key="index"
                                             :href="route(item.route)" 
-                                            :class="[route().current(item.route) ? 'text-blue-600 bg-blue-50 font-bold ring-1 ring-blue-100' : 'text-slate-600 hover:text-blue-600 hover:bg-slate-50 font-medium']"
+                                            :class="[route().current(item.route) ? 'text-primary bg-primary/10 ring-1 ring-primary/20' : 'text-slate-600 hover:text-primary hover:bg-secondary/50 font-medium']"
                                             class="flex items-center justify-start md:justify-center text-left md:text-center px-4 py-3 md:py-4 rounded-xl text-base md:text-sm transition-all duration-200 border border-transparent md:border-none hover:border-slate-100"
                                         >
                                             <span class="w-1.5 h-1.5 rounded-full bg-slate-300 mr-3 md:hidden"></span>
@@ -192,7 +238,7 @@ const menuItems = [
                                     <div class="border-t border-slate-100 my-2 pt-6 pb-8 md:hidden">
                                         <div v-if="!user" class="grid gap-3">
                                             <Link :href="route('login')" class="flex items-center justify-center w-full px-4 py-2 rounded-lg bg-slate-100 text-slate-700 font-semibold">Log In</Link>
-                                            <Link :href="route('register')" class="flex items-center justify-center w-full px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold">Register</Link>
+                                            <Link :href="route('register')" class="flex items-center justify-center w-full px-4 py-2 rounded-lg bg-primary text-white font-semibold">Register</Link>
                                         </div>
                                     </div>
                                 </ScrollArea>
@@ -211,7 +257,7 @@ const menuItems = [
         <!-- Footer -->
         <footer class="bg-slate-900 text-slate-300 py-12 relative overflow-hidden mt-auto">
             <!-- Decorative circle -->
-            <div class="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-blue-900/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
 
             <div class="container mx-auto px-4 relative z-10 flex flex-col md:flex-row justify-center md:items-end gap-12">
                  
@@ -243,7 +289,10 @@ const menuItems = [
                         <h3 class="text-white font-bold mb-4">Quick Links</h3>
                         <ul class="space-y-2 text-sm">
                             <li v-for="item in menuItems.slice(0, 5)" :key="item.label">
-                                <Link :href="route(item.route)" class="hover:text-blue-400 transition-colors">{{ item.label }}</Link>
+                                <Link :href="route(item.route)" class="hover:text-primary-foreground/80 transition-colors">{{ item.label }}</Link>
+                            </li>
+                            <li>
+                                <Link :href="route('sitemap')" class="hover:text-primary-foreground/80 transition-colors">Sitemap</Link>
                             </li>
                         </ul>
                     </div>

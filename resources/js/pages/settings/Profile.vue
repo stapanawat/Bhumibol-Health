@@ -1,3 +1,4 @@
+<script setup lang="ts">
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 
@@ -11,12 +12,15 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { type BreadcrumbItem } from '@/types';
 
-interface Props {
-    mustVerifyEmail: boolean;
-    status?: string;
-}
-
-defineProps<Props>();
+defineProps({
+    mustVerifyEmail: {
+        type: Boolean,
+        required: true,
+    },
+    status: {
+        type: String,
+    },
+});
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
@@ -110,8 +114,9 @@ const updateProfile = () => {
                         <Button
                             :disabled="form.processing"
                             data-test="update-profile-button"
-                            >Save</Button
                         >
+                            Save
+                        </Button>
 
                         <Transition
                             enter-active-class="transition ease-in-out"
