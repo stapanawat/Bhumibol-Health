@@ -1,10 +1,13 @@
+
+
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { Eye, Heart, Share2 } from 'lucide-vue-next';
 import PublicLayout from '@/layouts/PublicLayout.vue';
 import { route } from 'ziggy-js';
+import { ref, onMounted, onUnmounted } from 'vue';
 
-defineProps<{
+const props = defineProps<{
     heroPost?: {
         title_th: string;
         excerpt_th: string;
@@ -27,6 +30,13 @@ defineProps<{
         specialty_th: string;
         image: string;
     }>;
+    introPages?: Array<{
+        id: number;
+        title: string;
+        media_path: string;
+        link?: string;
+        display_duration?: number;
+    }>;
 }>();
 
 const formatDate = (date: string) => {
@@ -36,14 +46,68 @@ const formatDate = (date: string) => {
         day: 'numeric',
     });
 };
+
+const currentSlide = ref(0);
+let slideTimer: any = null;
+
+const startSlideTimer = () => {
+    if (props.introPages && props.introPages.length > 1) {
+        clearInterval(slideTimer);
+        const duration = (props.introPages![currentSlide.value].display_duration || 5) * 1000;
+        slideTimer = setInterval(() => {
+            currentSlide.value = (currentSlide.value + 1) % props.introPages!.length;
+        }, duration);
+    }
+};
+
+onMounted(() => {
+    if (props.introPages && props.introPages.length > 0) {
+        startSlideTimer();
+    }
+});
+
+onUnmounted(() => {
+    if (slideTimer) clearInterval(slideTimer);
+});
 </script>
 
 <template>
     <Head title="Welcome to Bhumibol Health" />
 
     <PublicLayout>
-        <!-- Hero Section -->
-        <div class="relative bg-white overflow-hidden">
+        <!-- Intro Slideshow (If Available) -->
+        <div v-if="introPages && introPages.length > 0" class="relative bg-black overflow-hidden h-[500px] md:h-[600px]">
+             <div 
+                v-for="(slide, index) in introPages" 
+                :key="slide.id"
+                class="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+                :class="{'opacity-100 relative z-10': currentSlide === index, 'opacity-0 z-0': currentSlide !== index}"
+            >
+                <img :src="`/storage/${slide.media_path}`" class="w-full h-full object-cover opacity-80" :alt="slide.title">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end justify-center pb-20">
+                     <div class="text-center px-4 max-w-4xl mx-auto">
+                        <h2 class="text-3xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">{{ slide.title }}</h2>
+                        <a v-if="slide.link" :href="slide.link" class="inline-block px-8 py-3 bg-primary text-white font-medium rounded-full hover:bg-primary/90 transition-colors shadow-lg">
+                            Learn More
+                        </a>
+                     </div>
+                </div>
+            </div>
+
+            <!-- Slide Indicators -->
+            <div v-if="introPages.length > 1" class="absolute bottom-8 left-0 right-0 z-20 flex justify-center space-x-2">
+                <button 
+                    v-for="(slide, index) in introPages" 
+                    :key="index"
+                    @click="currentSlide = index; startSlideTimer()"
+                    class="w-3 h-3 rounded-full transition-all duration-300"
+                    :class="currentSlide === index ? 'bg-primary w-8' : 'bg-white/50 hover:bg-white'"
+                ></button>
+            </div>
+        </div>
+
+        <!-- Static Hero Section (Fallback) -->
+        <div v-else class="relative bg-white overflow-hidden">
             <div class="max-w-7xl mx-auto">
                 <div class="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
                     <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">

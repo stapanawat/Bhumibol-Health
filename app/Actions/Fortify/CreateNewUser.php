@@ -27,12 +27,15 @@ class CreateNewUser implements CreatesNewUsers
                 'max:255',
                 Rule::unique(User::class),
             ],
+            'phone' => ['nullable', 'string', 'max:20'],
             'password' => $this->passwordRules(),
+            'g-recaptcha-response' => ['required', new \App\Rules\Recaptcha],
         ])->validate();
 
         return User::create([
             'name' => $input['name'],
             'email' => $input['email'],
+            'phone' => $input['phone'] ?? null,
             'password' => $input['password'],
         ]);
     }

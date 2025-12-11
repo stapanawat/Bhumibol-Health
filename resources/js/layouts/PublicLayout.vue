@@ -17,7 +17,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LogOut, LayoutDashboard, User as UserIcon, Menu as MenuIcon, Users } from 'lucide-vue-next';
-import { route } from 'ziggy-js';
+
 import GlobalSearch from '@/components/GlobalSearch.vue';
 import IntroOverlay from '@/components/IntroOverlay.vue';
 import PopupModal from '@/components/PopupModal.vue';
@@ -153,8 +153,8 @@ const menuItems = [
                                 <DropdownMenuTrigger class="outline-none">
                                     <div class="flex items-center gap-2 py-1 pl-1 pr-2 rounded-full border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer">
                                         <Avatar class="h-8 w-8">
-                                            <AvatarImage :src="user.avatar" :alt="user.name" />
-                                            <AvatarFallback>{{ getInitials(user.name) }}</AvatarFallback>
+                                            <AvatarImage :src="user.avatar || ''" :alt="user.name || ''" />
+                                            <AvatarFallback>{{ getInitials(user.name || '') }}</AvatarFallback>
                                         </Avatar>
                                         <span class="text-sm font-medium text-slate-700 hidden lg:block">{{ user.name }}</span>
                                     </div>

@@ -31,10 +31,22 @@ class NewsController extends Controller
 
         $doctors = Doctor::orderBy('order')->take(4)->get();
 
+        $introPages = \App\Models\IntroPage::where('status', true)
+            ->where(function ($query) {
+                $query->whereNull('start_date')
+                    ->orWhere('start_date', '<=', now());
+            })
+            ->where(function ($query) {
+                $query->whereNull('end_date')
+                    ->orWhere('end_date', '>=', now());
+            })
+            ->get();
+
         return Inertia::render('Welcome', [
             'heroPost' => $heroPost,
             'latestNews' => $latestNews,
-            'doctors' => $doctors
+            'doctors' => $doctors,
+            'introPages' => $introPages,
         ]);
     }
 

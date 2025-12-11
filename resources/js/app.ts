@@ -22,7 +22,7 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })
             .use(plugin)
-            .use(ZiggyVue)
+            .use(ZiggyVue, (props.initialPage.props as any).ziggy)
             .mount(el);
     },
     progress: {
